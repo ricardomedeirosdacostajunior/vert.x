@@ -211,8 +211,9 @@ public class HttpClientImpl implements HttpClient, MetricsProvider, Closeable {
         port = 0;
       }
       ClientMetrics metrics = this.metrics != null ? this.metrics.createEndpointMetrics(key.serverAddr, maxPoolSize) : null;
-      HttpChannelConnector connector = new HttpChannelConnector(this, channelGroup, ctx, metrics, options.getProtocolVersion(), key.ssl ? sslHelper : null, key.peerAddr, key.serverAddr);
-      return new ClientHttpStreamEndpoint(metrics, metrics, options.getMaxWaitQueueSize(), maxSize, host, port, ctx, connector, dispose);
+      HttpChannelConnector connector = new HttpChannelConnector(this, channelGroup, metrics, options.getProtocolVersion(), key.ssl ? sslHelper : null, key.peerAddr, key.serverAddr);
+      HttpConnectionProvider provider = new HttpConnectionProvider(this, connector, ctx, options.getProtocolVersion());
+      return new ClientHttpStreamEndpoint(metrics, metrics, options.getMaxWaitQueueSize(), maxSize, host, port, ctx, provider, dispose);
     });
   }
 
@@ -229,7 +230,7 @@ public class HttpClientImpl implements HttpClient, MetricsProvider, Closeable {
         port = 0;
       }
       ClientMetrics metrics = this.metrics != null ? this.metrics.createEndpointMetrics(key.serverAddr, maxPoolSize) : null;
-      HttpChannelConnector connector = new HttpChannelConnector(this, channelGroup, ctx, metrics, HttpVersion.HTTP_1_1, key.ssl ? webSocketSSLHelper : null, key.peerAddr, key.serverAddr);
+      HttpChannelConnector connector = new HttpChannelConnector(this, channelGroup, metrics, HttpVersion.HTTP_1_1, key.ssl ? webSocketSSLHelper : null, key.peerAddr, key.serverAddr);
       return new WebSocketEndpoint(null, port, host, metrics, maxPoolSize, connector, dispose);
     });
   }
